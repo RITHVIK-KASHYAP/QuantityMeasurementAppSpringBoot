@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
         @Index(name="idx_created_at", columnList="created_at")
 })
 @Data
-@NoArgsConstructor
+//@NoArgsConstructor
 @AllArgsConstructor
 public class QuantityMeasurementEntity {
 	public QuantityMeasurementEntity() {
