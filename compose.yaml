@@ -2,11 +2,9 @@ services:
 
   mysql:
     image: mysql:8.0
-
     container_name: quantitymeasurementdb
 
     environment:
-      environment:
       MYSQL_ROOT_PASSWORD: root123
       MYSQL_DATABASE: qm_db
       MYSQL_USER: qmuser
@@ -19,8 +17,7 @@ services:
       - quantitymeasurement-net
 
   backend:
-    image: 064338743510.dkr.ecr.ap-south-1.amazonaws.com/quantity-measurement-ecr
-
+    image: 064338743510.dkr.ecr.ap-south-1.amazonaws.com/quantity-measurement-ecr:latest
     container_name: qm-app-backend
 
     ports:
