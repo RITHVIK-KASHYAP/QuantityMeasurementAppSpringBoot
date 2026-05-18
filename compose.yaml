@@ -1,3 +1,5 @@
+version: "3.8"
+
 services:
 
   mysql:
@@ -10,24 +12,31 @@ services:
       MYSQL_USER: qmuser
       MYSQL_PASSWORD: qmpassword
 
+    ports:
+      - "3306:3306"
+
     volumes:
       - quantitymeasurement-dbdata:/var/lib/mysql
 
     networks:
       - quantitymeasurement-net
 
+    restart: always
+
   backend:
     image: 064338743510.dkr.ecr.ap-south-1.amazonaws.com/quantity-measurement-ecr:latest
     container_name: qm-app-backend
 
     ports:
-      - "8080:8080"
+      - "8081:8080"
 
     depends_on:
       - mysql
 
     networks:
       - quantitymeasurement-net
+
+    restart: always
 
 networks:
   quantitymeasurement-net:
