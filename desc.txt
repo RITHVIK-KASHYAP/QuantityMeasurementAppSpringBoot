@@ -1,0 +1,93 @@
+-----BEGIN RSA PRIVATE KEY-----
+MIIEowIBAAKCAQEAsXGT/zJjlDkOW7hA2/TzuSUYvxhSvw8+Rw1y+X9CyHxXYhpW
+DtmFkfOaPdXKnByqYz3nH1lgFAgHLxcb7zuNctyruzwW3Q0ruxvDUcNsSUeSekaN
+xnxedX0bZNW5MZ0guEz2UFBb/lDQttRG+u9SC5B7lZTnSXD4A8tsatr/boldgAnC
+1ToaJZRrm63P24HqhH5dQg/VYcTucht96WCn1R88x+kkOuiO3MMlqtwR2QtIb8No
+rHTGpR0B9B61HqPitLMP6IsEySRYyk+fJ300b+oxmSuHqo5nmZin5fd1/I9Jbt8G
+hQx9rmfKyteMPpSvn71CeDOn1oHga2Sbn2y+NwIDAQABAoIBAGYBoA3Fvt8XybxK
+eOa5s16NB+PbLL5vGeMoxR7O3Op6KJXaA/z3aUTVIKdJfvctt3njvTkVXRlG4DJe
++40U1CTi3Mp/Kbmb97bRqAAZ8udRgNBQPPKMzpSF/jiCcLsn1AZ/H95dw/S4KrPf
+5oodCDJjtdfwyOE8UyeDSulGyi6VTf9Kn4FLUFXaaZ5Ym5odWBUeZ99Au4YarIty
+4lJpiwK9TgOTA33AtxvsihsDNKQ7ERD9iNrIXBuSZNY/ostormYuzWn1H9wQ1KJ1
+naok/m/32TQOKZ+200bhnPYclKHM4FpFDUNV+EKgYrdkMReI4cQ5TA5BLcz/XWgm
+OZTAy7kCgYEA3EQYv/jTpiiyI1CQ0nN9IM7oOl+Zr2LELe3Pwcy1XBrp99h1yFKO
+/EfhSli1h1tBRss/ChOxOPydjYaj8nfoqWiLLy1y9bPcjjAQr7U1QWbHsgnfn/4j
+oer7QBgGtu224IZAy2db+XmmyQWkUY+G8Y1H7nJldFhPrlx9yv+wSosCgYEAzjsF
+GTQMsbgIRs6UnY0/pruHW3fySzaT2gR1m111v6k38rsU6lvSbbppxqrSl3XArMew
+wxQSDKgKCQB2/uNmeLxypv0qG4l4MaVlCKhGrnmOLUKICSVz3Skg8X4W1XOatCls
+9r/Qy5OE0JqAUJJ85G+KwDVOs0Ai+NrSHox2jIUCgYEAgH0gyuuF20mmEL+wm3NP
+LNJF2bdm2U6ODhTJus2FhgMVNMUKgB7Y1gXAQDRbQGhVPczWKzStjwadia9e99RG
+3nvjpVOn2fhf0nnrYfQc6tff6dWko5oGgy+l/Q+G6zLkGTl3lq/mkTMLvfwSjJlj
+KIk3yrrkv+e8I4RExSQ+XF0CgYAU9FRBSlOb3yogH69kDs0P4PAQ8DATSlldhqR4
+g9eKAOSpai7m3SuVcKJ8yDCbqSBJrgSc3bYzyQM0BPMSVQK9c9BmfUTBBYfL65VH
+eumrorg6iw8Ndtu99gbd4sTpLVTjx23F6JmLhdKx63DsPuYnw9miTAhSGEs1Y+6D
+ohwNjQKBgDegf/q7MW5HC3YI78EPFl8tH600LCf08ScxY3a4sxaQ/6MoVMARlw6s
+o2T1Cnm8hhQQjArMqFpeDV2AZ/k9pO3QUwQMMnjkWFLlOK1JrRpe3+AiMpLN0gMb
+CRhU4s4QhxGwCaWVx5xcLIi8ECa3CGMy6aW1czWmdQSOiAcnEPXp
+-----END RSA PRIVATE KEY-----
+
+http://13.201.31.172:8080/
+ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCgXHrTL6fBi33OwQky6kQthVcgzNYrtIb80lRbv8HQj8VEneuMfPrNgHhoL0u7c0gfOj/ut/JdwLhXG87tJ2a4K5y20FpxYhgcXy/5qRAXOs8ZdPeYtz8UM4/ztaxXvrKu3sRMYPxImMe3oGYJNG+i5i1zOrVbuY/atLh8vc66AiQR1f9yJmsvatQZnXc0S0fFPz1aMQnYU1m5KVMflaJ8VqeGWgdsEKFS80wf+zeGbYwDJafaSFJF2iq8sWBQ3rXcGpe63nlHAGhOlqwzpN5knKWR1jMCpr/76NFLZSUephNwBBcOb1V4YSYGjh4nUODURh7V3l1bU2cCcthIh6i9 jenkins@jenkins-server
+
+
+
+mvn clean package -DskipTests
+
+scp target/quantitymeasurementapp-0.0.1-SNAPSHOT.jar ubuntu@172.xx.xx.xx:/app/target
+
+ssh ubuntu@172.xx.xx.xx 'sudo systemctl restart quantityapp.service'
+docker run -d \
+--name quantitymeasurementdb \
+--network qmapp-net \
+-e MYSQL_ROOT_PASSWORD=root123 \
+-e MYSQL_DATABASE=qm_db \
+-e MYSQL_USER=qmuser \
+-e MYSQL_PASSWORD=qmpassword \
+mysql:8.0
+
+
+
+services:
+
+  mysql:
+    image: mysql:8.0
+
+    container_name: quantitymeasurementdb
+
+    environment:
+      MYSQL_ROOT_PASSWORD: root123
+      MYSQL_DATABASE: qm_db
+      MYSQL_USER: qmuser
+      MYSQL_PASSWORD: qmpassword
+
+    ports:
+      - "3306:3306"
+
+    volumes:
+      - quantitymeasurement-dbdata:/var/lib/mysql
+
+    networks:
+      - quantitymeasurement-net
+
+  backend:
+    build: .
+
+    container_name: qm-app-backend
+
+    ports:
+      - "8080:8080"
+
+    depends_on:
+      - mysql
+
+    networks:
+      - quantitymeasurement-net
+
+networks:
+  quantitymeasurement-net:
+    driver: bridge
+
+volumes:
+  quantitymeasurement-dbdata:
+
+ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCgXHrTL6fBi33OwQky6kQthVcgzNYrtIb80lRbv8HQj8VEneuMfPrNgHhoL0u7c0gfOj/ut/JdwLhXG87tJ2a4K5y20FpxYhgcXy/5qRAXOs8ZdPeYtz8UM4/ztaxXvrKu3sRMYPxImMe3oGYJNG+i5i1zOrVbuY/atLh8vc66AiQR1f9yJmsvatQZnXc0S0fFPz1aMQnYU1m5KVMflaJ8VqeGWgdsEKFS80wf+zeGbYwDJafaSFJF2iq8sWBQ3rXcGpe63nlHAGhOlqwzpN5knKWR1jMCpr/76NFLZSUephNwBBcOb1V4YSYGjh4nUODURh7V3l1bU2cCcthIh6i9 jenkins@jenkins-server
