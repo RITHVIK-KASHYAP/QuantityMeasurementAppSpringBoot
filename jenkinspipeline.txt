@@ -1,0 +1,71 @@
+pipeline {
+    agent any
+
+    environment {
+        AWS_REGION = "ap-south-1"
+        ECR_REPO = "064338743510.dkr.ecr.ap-south-1.amazonaws.com/quantity-measurement-ecr"
+        EC2_HOST = "ubuntu@3.110.106.15"
+        SSH_KEY = "/var/lib/jenkins/.ssh/quantity-key.pem"
+        CONTAINER_NAME = "quantity-app"
+    }
+
+    stages {
+
+        stage('Checkout Code') {
+            steps {
+                git branch: 'docker',
+                    url: 'https://github.com/RITHVIK-KASHYAP/QuantityMeasurementAppSpringBoot.git'
+            }
+        }
+
+        stage('Build Docker Image') {
+            steps {
+                sh """
+                docker build -t $ECR_REPO:latest .
+                """
+            }
+        }
+
+        stage('Login to ECR') {
+            steps {
+                withCredentials([
+                    [$class: 'AmazonWebServicesCredentialsBinding',
+                     credentialsId: 'aws-ecr-creds']
+                ]) {
+                    sh """
+                    aws ecr get-login-password --region $AWS_REGION \
+                    | docker login --username AWS --password-stdin $ECR_REPO
+                    """
+                }
+            }
+        }
+
+        stage('Push Image to ECR') {
+            steps {
+                sh """
+                docker push $ECR_REPO:latest
+                """
+            }
+        }
+
+        stage('Deploy to EC2') {
+            steps {
+                sh """
+                ssh -i $SSH_KEY -o StrictHostKeyChecking=no $EC2_HOST '
+                
+                # Pull latest image
+                docker pull $ECR_REPO:latest
+
+                # Stop old container
+                docker stop $CONTAINER_NAME || true
+                docker rm $CONTAINER_NAME || true
+
+                # Run new container
+                docker run -d --name $CONTAINER_NAME -p 8080:8080 $ECR_REPO:latest
+
+                '
+                """
+            }
+        }
+    }
+}
