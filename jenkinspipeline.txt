@@ -69,3 +69,74 @@ pipeline {
         }
     }
 }
+
+
+pipeline {
+    agent any
+
+    environment {
+        AWS_ACCOUNT_ID = '064338743510'
+        AWS_REGION = 'ap-south-1'
+        IMAGE_NAME = 'quantity-measurement-ecr'
+
+        ECR_URI = "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${IMAGE_NAME}"
+    }
+
+    stages {
+
+        stage('Checkout Code') {
+            steps {
+                git branch: 'docker',
+                    url: 'https://github.com/RITHVIK-KASHYAP/QuantityMeasurementAppSpringBoot.git'
+            }
+        }
+
+        stage('Build Docker Image') {
+            steps {
+                sh """
+                docker build -t ${ECR_URI}:latest .
+                """
+            }
+        }
+
+        stage('Login To ECR') {
+            steps {
+                withCredentials([[
+                    $class: 'AmazonWebServicesCredentialsBinding',
+                    credentialsId: 'aws-ecr-creds'
+                ]]) {
+                    sh """
+                    aws ecr get-login-password --region ${AWS_REGION} | \
+                    docker login --username AWS --password-stdin ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com
+                    """
+                }
+            }
+        }
+
+        stage('Push Docker Image') {
+            steps {
+                sh """
+                docker push ${ECR_URI}:latest
+                """
+            }
+        }
+
+        stage('Deploy') {
+            steps {
+                sh """
+                docker pull ${ECR_URI}:latest
+
+                docker stop quantity-app || true
+                docker rm quantity-app || true
+
+                docker run -d \
+                --name quantity-app \
+                -p 8081:8080 \
+                --restart always \
+                ${ECR_URI}:latest
+                """
+            }
+        }
+
+    }
+}
